@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.entity.stock;
 
 import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -15,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,7 +45,17 @@ public class ItemStock extends BaseEntity {
 	@Column(name = "sold_quantity")
 	private int soldQuantity; // 결제 완료되어 확정된 수량
 
-	public Empty update(ItemCreateRequest request, Item item) {
+	@Version
+	private Integer version;
+
+	public ItemStock(Item item, TimeDealItem timeDealItem, int quantity, int soldQuantity) {
+		this.item = item;
+		this.timeDealItem = timeDealItem;
+		this.quantity = quantity;
+		this.soldQuantity = soldQuantity;
+	}
+
+	public void update(ItemCreateRequest request, Item item) {
 		this.item = item;
 
 		// 팔린 만큼 재고 채워넣어야 함(임시 비즈니스 로직)
@@ -52,10 +64,9 @@ public class ItemStock extends BaseEntity {
 		}
 
 		this.quantity = request.stockQuantity(); // todo: 최초 설정된 재고만 업데이트 가능?
-		return Empty.getInstance();
 	}
 
-	public Empty changeQuantity(int newQuantity) {
+	public void changeQuantity(int newQuantity) {
 		if (newQuantity < 0) {
 			throw new InvalidItemException(BaseResponseStatus.INVALID_STOCK);
 		}
@@ -63,8 +74,6 @@ public class ItemStock extends BaseEntity {
 			throw new InvalidItemException(BaseResponseStatus.OUT_OF_STOCK);
 		}
 		this.quantity = newQuantity;
-
-		return Empty.getInstance();
 	}
 
 	@PrePersist

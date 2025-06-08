@@ -117,7 +117,7 @@ public class CommandAdminServiceTest {
         ItemUpdateRequest request = new ItemUpdateRequest(30, new BigDecimal("15000"), "");
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.empty());
+        when(itemStockRepository.findByItem(item)).thenReturn(Optional.empty());
 
         // when & then
         InvalidItemException exception = assertThrows(InvalidItemException.class,
@@ -140,13 +140,13 @@ public class CommandAdminServiceTest {
 
         // mock 객체 반환 설정
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.of(itemStock));
+        when(itemStockRepository.findByItem(item)).thenReturn(Optional.of(itemStock));
 
         // when
         commandAdminItemService.updateItem(itemId, request);
 
         // then
-        verify(item).changePrice(new BigDecimal("20000")); // 가격 변경 확인
+        verify(item).update(request); // 가격 변경 확인
         verify(itemStock).changeQuantity(50);              // 수량 변경 확인         // 반환 값 확인
     }
 

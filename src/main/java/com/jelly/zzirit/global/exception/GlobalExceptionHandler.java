@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -42,4 +43,10 @@ public class GlobalExceptionHandler {
 
 		return BaseResponse.error(BaseResponseStatus.VALIDATION_FAILED, errors);
 	} // 요청 DTO 검증 실패 [Validation 실패]
+
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler(ObjectOptimisticLockingFailureException.class) // 낙관적 락에 의한 충돌
+	public BaseResponse<Empty> handleLockingFailureException() {
+		return BaseResponse.error(BaseResponseStatus.ITEM_CONCURRENT_UPDATE);
+	}
 }

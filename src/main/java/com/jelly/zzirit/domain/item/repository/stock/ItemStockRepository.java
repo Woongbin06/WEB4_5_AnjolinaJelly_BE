@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
@@ -18,7 +19,7 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 
 	Optional<ItemStock> findByItemId(Long itemId);
 
-	List<ItemStock> findAllByItemId(Long itemId);
+	Optional<ItemStock> findByItem(Item item);
 
 	Optional<ItemStock> findByTimeDealItem(TimeDealItem tdi);
 
