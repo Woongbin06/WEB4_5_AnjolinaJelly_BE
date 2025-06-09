@@ -13,6 +13,7 @@ import com.jelly.zzirit.domain.item.dto.response.CurrentTimeDealFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
+import com.jelly.zzirit.domain.item.dto.response.SimpleItemsFetchResponse;
 import com.jelly.zzirit.domain.item.service.CommandTimeDealService;
 import com.jelly.zzirit.domain.item.service.QueryItemService;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -33,18 +34,18 @@ public class ItemController {
 
 	@GetMapping("/search")
 	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
-	public BaseResponse<PageResponse<ItemFetchQueryResponse>> search(
+	public BaseResponse<SimpleItemsFetchResponse> search(
 		@RequestParam(name = "types", required = false) String types,
 		@RequestParam(name = "brands", required = false) String brands,
 		@RequestParam(name = "keyword", required = false) String keyword,
 		@RequestParam(name = "sort", defaultValue = "priceAsc") String sort,
-		@RequestParam(name = "page", defaultValue = "0") int page,
-		@RequestParam(name = "size", defaultValue = "10") int size
+		@RequestParam(name = "size", defaultValue = "20") int size,
+		@RequestParam(name = "last-price", required = false) Long lastPrice,
+		@RequestParam(name = "last-item-id", required = false) Long lastItemId
 	) {
-		Pageable pageable = PageRequest.of(page, size);
 		ItemFilterRequest filter = ItemFilterRequest.of(types, brands, keyword);
 		return BaseResponse.success(
-			queryItemService.search(filter, sort, pageable)
+			queryItemService.search(filter, sort, size, lastPrice, lastItemId)
 		);
 	}
 

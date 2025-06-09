@@ -24,7 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
-import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
+import com.jelly.zzirit.domain.item.dto.response.SimpleItemsFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
@@ -77,8 +77,7 @@ public class QueryItemServiceTest {
 					null
 				)
 			);
-			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-			PageImpl<ItemFetchQueryResponse> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
+
 			given(itemQueryRepository.findItems(
 				ItemFilterRequest.of(
 					"노트북",
@@ -86,22 +85,34 @@ public class QueryItemServiceTest {
 					"노트북"
 				),
 				"priceAsc",
-				pageable
-			)).willReturn(mockPage);
+				null,
+				null,
+				20
+			)).willReturn(상품들);
+
+			given(itemQueryRepository.findItemsCount(
+				ItemFilterRequest.of(
+					"노트북",
+					"",
+					"노트북"
+				)
+			)).willReturn(1L);
 
 			// when
-			PageResponse<ItemFetchQueryResponse> 응답 = queryItemService.search(
+			SimpleItemsFetchResponse 응답 = queryItemService.search(
 				ItemFilterRequest.of(
 					"노트북",
 					"",
 					"노트북"
 				),
 				"priceAsc",
-				pageable
+				20,
+				null,
+				null
 			);
 
 			// then
-			assertThat(응답.getTotalElements()).isEqualTo(1);
+			assertThat(응답.totalCount()).isEqualTo(1);
 		}
 
 		@Test
@@ -128,31 +139,42 @@ public class QueryItemServiceTest {
 					null
 				)
 			);
-			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-			PageImpl<ItemFetchQueryResponse> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
+
 			given(itemQueryRepository.findItems(
 				ItemFilterRequest.of(
-					"노트북,스마트폰",
-					"삼성,애플",
-					""
+					"노트북",
+					"삼성",
+					null
 				),
 				"priceAsc",
-				pageable
-			)).willReturn(mockPage);
+				null,
+				null,
+				20
+			)).willReturn(상품들);
+
+			given(itemQueryRepository.findItemsCount(
+				ItemFilterRequest.of(
+					"노트북",
+					"삼성",
+					null
+				)
+			)).willReturn(1L);
 
 			// when
-			PageResponse<ItemFetchQueryResponse> 응답 = queryItemService.search(
+			SimpleItemsFetchResponse  응답 = queryItemService.search(
 				ItemFilterRequest.of(
 					"노트북,스마트폰",
 					"삼성,애플",
-					""
+					null
 				),
 				"priceAsc",
-				pageable
+				20,
+				null,
+				null
 			);
 
 			// then
-			assertThat(응답.getTotalElements()).isEqualTo(2);
+			assertThat(응답.totalCount()).isEqualTo(2);
 		}
 	}
 

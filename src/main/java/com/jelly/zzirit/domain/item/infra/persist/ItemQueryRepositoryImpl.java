@@ -8,6 +8,7 @@ import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDeal.*;
 import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
 import static com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal.TimeDealStatus.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,8 +49,14 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<ItemFetchQueryResponse> findItems(ItemFilterRequest filter, String sort, Pageable pageable) {
-		List<ItemFetchQueryResponse> items = queryFactory.selectDistinct(
+	public List<ItemFetchQueryResponse> findItems(
+		ItemFilterRequest filter,
+		String sort,
+		Long lastItemId,
+		Long lastPrice,
+		int size
+	) {
+		return queryFactory.select(
 			new QItemFetchQueryResponse(
 				item.id,
 				item.name,
@@ -70,20 +77,22 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			.join(typeBrand.type, type)
 			.join(typeBrand.brand, brand)
 			.where(
+				cursorCondition(sort, lastPrice, lastItemId),
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
 				isBrandContain(filter.brands())
 			)
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.limit(size)
 			.orderBy(sortByPrice(sort))
 			.fetch();
+	}
 
-		JPAQuery<Long> total = queryFactory.selectDistinct(item.count())
+	public Long findItemsCount(ItemFilterRequest filter) {
+		return queryFactory.select(item.id.count())
 			.from(item)
 			.leftJoin(timeDealItem)
-				.on(timeDealItem.item.eq(item)
-					.and(isOngoingTimeDeal()))
+			.on(timeDealItem.item.eq(item)
+				.and(isOngoingTimeDeal()))
 			.join(item.typeBrand, typeBrand)
 			.join(typeBrand.type, type)
 			.join(typeBrand.brand, brand)
@@ -91,13 +100,8 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
 				isBrandContain(filter.brands())
-			);
-
-		return PageableExecutionUtils.getPage(
-			items,
-			pageable,
-			total::fetchOne
-		);
+			)
+			.fetchOne();
 	}
 
 	private BooleanExpression isOngoingTimeDeal() {
@@ -114,6 +118,21 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				.where(item.id.eq(itemId))
 				.fetchOne()
 		);
+	}
+
+	private BooleanExpression cursorCondition(String sort, Long lastPrice, Long lastItemId) {
+		if(lastPrice == null || lastItemId == null) {
+			return null;
+		}
+
+		BigDecimal price = BigDecimal.valueOf(lastPrice);
+
+		if (sort.equals("priceDesc")) {
+			return item.price.lt(lastPrice)
+				.or(item.price.eq(price).and(item.id.lt(lastItemId)));
+		}
+		return item.price.gt(lastPrice)
+			.or(item.price.eq(price).and(item.id.lt(lastItemId)));
 	}
 
 	private OrderSpecifier<?> sortByPrice(String sort) {

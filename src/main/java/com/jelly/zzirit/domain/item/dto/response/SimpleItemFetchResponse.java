@@ -20,33 +20,18 @@ public record SimpleItemFetchResponse(
 	LocalDateTime endTimeDeal
 ) {
 
-	public static SimpleItemFetchResponse from(TimeDealItem timeDealItem) {
+	public static SimpleItemFetchResponse from(ItemFetchQueryResponse item) {
 		return new SimpleItemFetchResponse(
-			timeDealItem.getItem().getId(),
-			timeDealItem.getItem().getName(),
-			timeDealItem.getItem().getTypeBrand().getType().getName(),
-			timeDealItem.getItem().getTypeBrand().getBrand().getName(),
-			timeDealItem.getItem().getImageUrl(),
-			timeDealItem.getItem().getPrice(),
-			timeDealItem.getPrice(),
-			timeDealItem.getItem().getItemStatus(),
-			timeDealItem.getTimeDeal().getDiscountRatio(),
-			timeDealItem.getTimeDeal().getEndTime()
-		);
-	}
-
-	public static SimpleItemFetchResponse from(Item item) {
-		return new SimpleItemFetchResponse(
-			item.getId(),
-			item.getName(),
-			item.getTypeBrand().getType().getName(),
-			item.getTypeBrand().getBrand().getName(),
-			item.getImageUrl(),
-			item.getPrice(),
-			BigDecimal.ZERO,
-			item.getItemStatus(),
-			0,
-			null
+			item.itemId(),
+			item.name(),
+			item.type(),
+			item.brand(),
+			item.imageUrl(),
+			item.originalPrice(),
+			item.discountedPrice(),
+			item.itemStatus(),
+			item.discountRatio(),
+			item.endTimeDeal()
 		);
 	}
 }

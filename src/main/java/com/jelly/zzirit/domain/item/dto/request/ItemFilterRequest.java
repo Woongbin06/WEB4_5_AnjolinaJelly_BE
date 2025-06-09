@@ -10,7 +10,11 @@ public record ItemFilterRequest (
 	String keyword
 ) {
 
-	public static ItemFilterRequest of(String types, String brands, String keyword) {
+	public static ItemFilterRequest of(
+		String types,
+		String brands,
+		String keyword
+	) {
 		return new ItemFilterRequest(
 			convertStringsToCollection(types),
 			convertStringsToCollection(brands),

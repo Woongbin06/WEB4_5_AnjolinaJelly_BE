@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.item.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -12,10 +13,16 @@ import com.jelly.zzirit.domain.item.entity.Item;
 
 public interface ItemQueryRepository {
 
-	Page<ItemFetchQueryResponse> findItems(
+	List<ItemFetchQueryResponse> findItems(
 		ItemFilterRequest filter,
 		String sort,
-		Pageable pageable
+		Long lastItemId,
+		Long lastPrice,
+		int size
+	);
+
+	Long findItemsCount(
+		ItemFilterRequest filter
 	);
 
 	Optional<Item> findItemWithTypeJoin(Long itemId);
