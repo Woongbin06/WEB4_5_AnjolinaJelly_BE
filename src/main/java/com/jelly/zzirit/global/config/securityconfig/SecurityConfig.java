@@ -92,8 +92,6 @@ public class SecurityConfig {
 				.requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
 				.requestMatchers(
 					"/docs/**",
-					"/swagger-ui/**",
-					"/v3/api-docs/**",
 					"/actuator/**",
 					"/favicon.ico"
 				).permitAll()

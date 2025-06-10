@@ -97,10 +97,7 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter:1.19.0"
     testImplementation "org.testcontainers:rabbitmq:1.19.0"
 
-
     swaggerUI 'org.webjars:swagger-ui:4.11.1'
-
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 }
 
 test {

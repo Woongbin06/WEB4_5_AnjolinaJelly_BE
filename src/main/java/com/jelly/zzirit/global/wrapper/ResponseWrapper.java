@@ -27,10 +27,7 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
 		ServerHttpResponse response
 	) {
 		String path = request.getURI().getPath();
-		if (path.startsWith("/v3/api-docs") ||
-			path.startsWith("/swagger-ui") ||
-			path.startsWith("/actuator")
-		) {
+		if (path.startsWith("/actuator")) {
 			return body;
 		}
 
