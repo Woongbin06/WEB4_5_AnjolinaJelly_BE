@@ -38,9 +38,8 @@ public class PaymentController {
 		description = "결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다."
 	)
 	@PostMapping("/init")
-	public BaseResponse<PaymentInitResponse> initOrder(@RequestBody @Valid PaymentRequest requestDto) {
-		PaymentInitResponse initResponse = commandPaymentInitService.createOrderAndReturnInit(requestDto);
-		return BaseResponse.success(initResponse);
+	public PaymentInitResponse initOrder(@RequestBody @Valid PaymentRequest requestDto) {
+		return commandPaymentInitService.createOrderAndReturnInit(requestDto);
 	}
 
 	@Operation(
@@ -48,13 +47,12 @@ public class PaymentController {
 		description = "결제 성공 시 주문을 확정 처리합니다."
 	)
 	@GetMapping("/success")
-	public BaseResponse<PaymentConfirmResponse> confirmPayment(
+	public PaymentConfirmResponse confirmPayment(
 		@RequestParam("paymentKey") String paymentKey,
 		@RequestParam("orderId") String orderId,
 		@RequestParam("amount") String amount
 	) {
-		PaymentConfirmResponse response = commandPaymentConfirmService.confirmPayment(paymentKey, orderId, amount);
-		return BaseResponse.success(response);
+		return commandPaymentConfirmService.confirmPayment(paymentKey, orderId, amount);
 	}
 
 	@Operation(

@@ -34,33 +34,29 @@ public class AuthController {
 
 	@Operation(summary = "이메일 인증 코드 전송")
 	@PostMapping("/send-email-code")
-	public BaseResponse<Empty> sendEmailVerificationCode(@RequestBody @Valid EmailAuthRequest emailAuthRequest) {
+	public void sendEmailVerificationCode(@RequestBody @Valid EmailAuthRequest emailAuthRequest) {
 		commandEmailService.sendEmailVerificationCode(emailAuthRequest.getEmail());
-		return BaseResponse.success();
 	}
 
 	@Operation(summary = "이메일 인증 코드 검증")
 	@PostMapping("/verify-email")
-	public BaseResponse<Empty> verifyEmailCode(@RequestBody @Valid EmailAuthVerifyRequest emailAuthVerifyRequest) {
+	public void verifyEmailCode(@RequestBody @Valid EmailAuthVerifyRequest emailAuthVerifyRequest) {
 		commandEmailService.verifyEmailCode(emailAuthVerifyRequest.getEmail(), emailAuthVerifyRequest.getCode());
-		return BaseResponse.success();
 	}
 
 	@Operation(summary = "자체 회원가입")
 	@PostMapping("/signup")
-	public BaseResponse<Empty> signup(@RequestBody @Valid SignupRequest signupRequest) {
+	public void signup(@RequestBody @Valid SignupRequest signupRequest) {
 		commandAuthService.signup(signupRequest);
-		return BaseResponse.success();
 	}
 
 	@Operation(summary = "소셜 회원가입 최종 처리")
 	@PostMapping("/social-signup")
-	public BaseResponse<Empty> completeSignup(
+	public void completeSignup(
 		HttpServletRequest request,
 		HttpServletResponse response,
 		@RequestBody @Valid SocialSignupRequest socialSignupRequest
 	) {
 		firstOAuthSignUpService.finalizeSocialSignup(request, response, socialSignupRequest);
-		return BaseResponse.success();
 	}
 }

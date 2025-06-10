@@ -34,7 +34,7 @@ public class ItemController {
 
 	@GetMapping("/search")
 	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
-	public BaseResponse<SimpleItemsFetchResponse> search(
+	public SimpleItemsFetchResponse search(
 		@RequestParam(name = "types", required = false) String types,
 		@RequestParam(name = "brands", required = false) String brands,
 		@RequestParam(name = "keyword", required = false) String keyword,
@@ -44,26 +44,21 @@ public class ItemController {
 		@RequestParam(name = "last-item-id", required = false) Long lastItemId
 	) {
 		ItemFilterRequest filter = ItemFilterRequest.of(types, brands, keyword);
-		return BaseResponse.success(
-			queryItemService.search(filter, sort, size, lastPrice, lastItemId)
-		);
+		return queryItemService.search(filter, sort, size, lastPrice, lastItemId);
 	}
 
 	@GetMapping("/{item-id}")
 	@Operation(summary = "상품 상세 조회", description = "상품을 상세 조회 합니다.")
-	public BaseResponse<ItemFetchResponse> getById(@PathVariable(name = "item-id") Long itemId) {
-		return BaseResponse.success(
-			queryItemService.getById(itemId)
-		);
+	public ItemFetchResponse getById(@PathVariable(name = "item-id") Long itemId) {
+		return queryItemService.getById(itemId);
 	}
 
 	@GetMapping("/time-deals/now")
 	@Operation(summary = "현재 진행 중인 타임딜", description = "현재 진행중인 타임딜 및 타임딜 상품을 조회합니다.")
-	public BaseResponse<PageResponse<CurrentTimeDealFetchResponse>> getCurrentTimeDeals(
+	public PageResponse<CurrentTimeDealFetchResponse> getCurrentTimeDeals(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "3") int size
 	) {
-		PageResponse<CurrentTimeDealFetchResponse> response = timeDealService.getCurrentTimeDeals(page, size);
-		return BaseResponse.success(response);
+		return timeDealService.getCurrentTimeDeals(page, size);
 	}
 }

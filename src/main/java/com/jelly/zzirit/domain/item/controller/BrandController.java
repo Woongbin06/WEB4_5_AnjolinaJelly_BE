@@ -25,9 +25,7 @@ public class BrandController {
 
 	@GetMapping("/{type-id}")
 	@Operation(summary = "상품 종류에 따른 브랜드 조회", description = "상품 종류 Id에 맞는 브랜드를 조회합니다.")
-	public BaseResponse<List<BrandFetchResponse>> findBrandByType(@PathVariable(name = "type-id") Long typeId) {
-		return BaseResponse.success(
-			queryBrandService.getByType(typeId)
-		);
+	public List<BrandFetchResponse> findBrandByType(@PathVariable(name = "type-id") Long typeId) {
+		return queryBrandService.getByType(typeId);
 	}
 }

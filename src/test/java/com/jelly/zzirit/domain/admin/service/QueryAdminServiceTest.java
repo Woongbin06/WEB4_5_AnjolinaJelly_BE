@@ -51,11 +51,11 @@ public class QueryAdminServiceTest {
         when(itemQueryRepository.findAdminItemById(itemId)).thenReturn(Optional.of(mockDto));
 
         // 실행
-        Optional<AdminItemFetchResponse> response = queryAdminService.getItemById(itemId);
+        AdminItemFetchResponse response = queryAdminService.getItemById(itemId);
 
         // then
-        assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 빈 리스트인지 검증?
-        assertEquals("아이폰 15", response.get().name());
+        assertNotNull(response);
+        assertEquals("아이폰 15", response.name());
         verify(itemQueryRepository).findAdminItemById(itemId);
     }
 
@@ -68,7 +68,7 @@ public class QueryAdminServiceTest {
         when(itemQueryRepository.findAdminItemById(itemId)).thenReturn(Optional.empty());
 
         // then
-        assertEquals(Optional.empty(), queryAdminService.getItemById(itemId));
+        assertThrows(InvalidItemException.class, () -> queryAdminService.getItemById(itemId));
         verify(itemQueryRepository).findAdminItemById(itemId);
     }
 

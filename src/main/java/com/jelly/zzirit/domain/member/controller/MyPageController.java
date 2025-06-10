@@ -31,15 +31,13 @@ public class MyPageController {
 
 	@Operation(summary = "내 정보 조회", description = "회원의 이름 및 주소 정보를 조회합니다.")
 	@GetMapping("/info")
-	public BaseResponse<MyPageInfoResponse> getMyPageInfo() {
-		MyPageInfoResponse info = queryMyPageService.getMyPageInfo();
-		return BaseResponse.success(info);
+	public MyPageInfoResponse getMyPageInfo() {
+		return queryMyPageService.getMyPageInfo();
 	}
 
 	@Operation(summary = "주소 수정", description = "회원의 주소 및 상세주소를 수정합니다.")
 	@PatchMapping("/address")
-	public BaseResponse<Empty> updateAddress(@RequestBody @Valid AddressUpdateRequest request) {
+	public void updateAddress(@RequestBody @Valid AddressUpdateRequest request) {
 		commandMyPageService.updateAddress(request);
-		return BaseResponse.success();
 	}
 }

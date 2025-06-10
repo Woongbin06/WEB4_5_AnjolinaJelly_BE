@@ -36,7 +36,7 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "주문 전체 조회 API", description = "전체 주문을 페이징 및 정렬 처리해 조회합니다.")
-    public BaseResponse<PageResponse<OrderFetchResponse>> fetchAllOrders(
+    public PageResponse<OrderFetchResponse> fetchAllOrders(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "desc") String sort
@@ -45,20 +45,18 @@ public class OrderController {
         Direction direction = sort.equalsIgnoreCase("desc") ? DESC : ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
 
-        return BaseResponse.success(PageResponse.from(
+        return PageResponse.from(
             queryOrderService.findPagedOrders(memberId, pageable)
                 .map(OrderFetchResponse::from)
-        ));
+        );
     }
 
     @DeleteMapping("/{order-id}")
     @Operation(summary = "주문 취소 및 환불 API", description = "아이디에 해당되는 주문을 취소하고 총 주문 금액을 환불합니다.")
-    public BaseResponse<Empty> cancelOrder(@PathVariable(name = "order-id") Long orderId) {
+    public void cancelOrder(@PathVariable(name = "order-id") Long orderId) {
         orderCancellationFacade.cancelOrderAndRefund(
             orderId,
             AuthMember.getAuthUser()
         );
-
-        return BaseResponse.success();
     }
 }

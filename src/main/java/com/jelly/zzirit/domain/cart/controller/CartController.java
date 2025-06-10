@@ -23,9 +23,7 @@ public class CartController {
 
 	@Operation(summary = "내 장바구니 조회", description = "현재 로그인된 사용자의 장바구니를 조회합니다.")
 	@GetMapping("/me")
-	public BaseResponse<CartFetchResponse> getMyCart() {
-		return BaseResponse.success(
-			cartService.getMyCart(AuthMember.getMemberId())
-		);
+	public CartFetchResponse getMyCart() {
+		return cartService.getMyCart(AuthMember.getMemberId());
 	}
 }

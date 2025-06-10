@@ -24,9 +24,7 @@ public class TypeController {
 
 	@GetMapping
 	@Operation(summary = "상품 종류 전체 조회", description = "상품 종류를 전체 조회 합니다.")
-	public BaseResponse<List<TypeFetchResponse>> findType() {
-		return BaseResponse.success(
-			queryTypeService.getAll()
-		);
+	public List<TypeFetchResponse> findType() {
+		return queryTypeService.getAll();
 	}
 }

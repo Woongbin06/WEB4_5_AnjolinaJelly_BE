@@ -26,15 +26,13 @@ public class InfoController {
 
 	@Operation(summary = "로그인 인증 상태 확인")
 	@GetMapping("/check")
-	public BaseResponse<Empty> checkAuth() {
+	public void checkAuth() {
 		log.info("유저 로그인 체크 : {}", AuthMember.getAuthUser());
-		return BaseResponse.success();
 	}
 
 	@Operation(summary = "임시 회원가입 토큰 유효성 검증")
 	@GetMapping("/temp-check")
-	public BaseResponse<Empty> checkTempToken(HttpServletRequest request) {
+	public void checkTempToken(HttpServletRequest request) {
 		oAuthTempTokenService.extractTokenData(request);
-		return BaseResponse.success();
 	}
 }
