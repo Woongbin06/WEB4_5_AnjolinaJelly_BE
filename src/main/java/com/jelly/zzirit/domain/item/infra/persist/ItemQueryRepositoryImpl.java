@@ -87,23 +87,6 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			.fetch();
 	}
 
-	public Long findItemsCount(ItemFilterRequest filter) {
-		return queryFactory.select(item.id.count())
-			.from(item)
-			.leftJoin(timeDealItem)
-			.on(timeDealItem.item.eq(item)
-				.and(isOngoingTimeDeal()))
-			.join(item.typeBrand, typeBrand)
-			.join(typeBrand.type, type)
-			.join(typeBrand.brand, brand)
-			.where(
-				isKeywordContain(filter.keyword()),
-				isTypeContain(filter.types()),
-				isBrandContain(filter.brands())
-			)
-			.fetchOne();
-	}
-
 	private BooleanExpression isOngoingTimeDeal() {
 		return timeDealItem.timeDeal.status.eq(ONGOING);
 	}

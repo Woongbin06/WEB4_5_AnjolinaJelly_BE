@@ -59,7 +59,6 @@ public class QueryItemService {
 		Long lastItemId
 	) {
 		List<ItemFetchQueryResponse> items = itemQueryRepository.findItems(filter, sort, lastItemId, lastPrice, size);
-		Long totalCount = itemQueryRepository.findItemsCount(filter);
-		return SimpleItemsFetchResponse.from(totalCount, items);
+		return SimpleItemsFetchResponse.from(items);
 	}
 }

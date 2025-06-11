@@ -21,10 +21,6 @@ public interface ItemQueryRepository {
 		int size
 	);
 
-	Long findItemsCount(
-		ItemFilterRequest filter
-	);
-
 	Optional<Item> findItemWithTypeJoin(Long itemId);
 
 	Optional<AdminItemFetchResponse> findAdminItemById(Long itemId);
