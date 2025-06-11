@@ -132,7 +132,6 @@ public class ItemControllerTest extends AcceptanceTest {
 					fieldWithPath("code").description("응답 코드").type(NUMBER),
 					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
 					fieldWithPath("message").description("응답 메시지").type(STRING),
-					fieldWithPath("result.totalCount").description("전체 상품 수").type(NUMBER),
 					fieldWithPath("result.items[].itemId").description("상품 ID").type(NUMBER),
 					fieldWithPath("result.items[].name").description("상품 이름").type(STRING),
 					fieldWithPath("result.items[].type").description("상품 종류").type(STRING),

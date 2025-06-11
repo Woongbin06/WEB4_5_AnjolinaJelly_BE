@@ -90,14 +90,6 @@ public class QueryItemServiceTest {
 				20
 			)).willReturn(상품들);
 
-			given(itemQueryRepository.findItemsCount(
-				ItemFilterRequest.of(
-					"노트북",
-					"",
-					"노트북"
-				)
-			)).willReturn(1L);
-
 			// when
 			SimpleItemsFetchResponse 응답 = queryItemService.search(
 				ItemFilterRequest.of(
@@ -112,7 +104,7 @@ public class QueryItemServiceTest {
 			);
 
 			// then
-			assertThat(응답.totalCount()).isEqualTo(1);
+			assertThat(응답.items().size()).isEqualTo(1);
 		}
 
 		@Test
@@ -152,14 +144,6 @@ public class QueryItemServiceTest {
 				20
 			)).willReturn(상품들);
 
-			given(itemQueryRepository.findItemsCount(
-				ItemFilterRequest.of(
-					"노트북",
-					"삼성",
-					null
-				)
-			)).willReturn(1L);
-
 			// when
 			SimpleItemsFetchResponse  응답 = queryItemService.search(
 				ItemFilterRequest.of(
@@ -174,7 +158,7 @@ public class QueryItemServiceTest {
 			);
 
 			// then
-			assertThat(응답.totalCount()).isEqualTo(2);
+			assertThat(응답.items().size()).isEqualTo(2);
 		}
 	}
 
