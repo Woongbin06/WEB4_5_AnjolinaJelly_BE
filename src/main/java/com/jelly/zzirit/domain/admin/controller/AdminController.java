@@ -84,16 +84,6 @@ public class AdminController {
 	) {
 		commandAdminItemService.updateItem(itemId, request);
 	}
-	
-	@PutMapping(value = "/items/{item-id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ImageUploadResponse updateImage(
-		@PathVariable("item-id") Long itemId,
-		@RequestPart("image") MultipartFile image
-	) throws IOException {
-		String uploadedUrl = commandS3Service.upload(image, "item-images");
-		commandAdminItemService.updateImageUrl(itemId, uploadedUrl);
-		return new ImageUploadResponse(uploadedUrl);
-	}
 
 	@DeleteMapping("/items/{item-id}")
 	public void deleteItem(@PathVariable("item-id") @NotNull Long itemId) {

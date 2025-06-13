@@ -14,6 +14,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,6 +28,7 @@ public class CommandAdminService {
 	private final TypeBrandRepository typeBrandRepository;
 	private final CommandS3Service commandS3Service;
 
+	@CacheEvict(cacheNames = "items", keyGenerator = "customKeyGenerator")
 	public void createItem(ItemCreateRequest request) {
 		if (request.imageUrl() == null || request.imageUrl().isBlank()) {
 			throw new InvalidItemException(BaseResponseStatus.IMAGE_REQUIRED);
@@ -43,6 +46,7 @@ public class CommandAdminService {
 		itemStockRepository.save(itemStock);
 	}
 
+	@CacheEvict(cacheNames = "items", key = "customKeyGenerator")
 	public void updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
 		Item item = itemRepository.findById(itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
@@ -55,6 +59,7 @@ public class CommandAdminService {
 		itemStock.changeQuantity(request.stockQuantity());
 	}
 
+	@CacheEvict(cacheNames = "items", key = "customKeyGenerator")
 	public void deleteItem(@NotNull Long itemId) {
 		// todo: 삭제 검증 로직 논의 필요 - 이미 판매된 상품은 삭제 불가 등
 		// todo: soft delete 사용할지 논의 필요
@@ -81,17 +86,5 @@ public class CommandAdminService {
 
 		// 상품 삭제
 		itemRepository.delete(item);
-	}
-
-	public void updateImageUrl(Long itemId, String newImageUrl) {
-		Item item = itemRepository.findById(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-
-		String oldImageUrl = item.getImageUrl();
-		if (oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
-			commandS3Service.delete(oldImageUrl); // 기존 이미지 삭제
-		}
-
-		item.setImageUrl(newImageUrl);
 	}
 }
