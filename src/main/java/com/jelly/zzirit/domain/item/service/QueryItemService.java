@@ -2,24 +2,22 @@ package com.jelly.zzirit.domain.item.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
-import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemsFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
-import com.jelly.zzirit.global.dto.PageResponse;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 import lombok.RequiredArgsConstructor;
@@ -51,6 +49,7 @@ public class QueryItemService {
 		return ItemFetchResponse.from(item, itemStock.getQuantity());
 	}
 
+	@Cacheable(cacheNames = "items", keyGenerator = "customKeyGenerator", cacheManager = "ItemsRedisCacheManager")
 	public SimpleItemsFetchResponse search(
 		ItemFilterRequest filter,
 		String sort,
