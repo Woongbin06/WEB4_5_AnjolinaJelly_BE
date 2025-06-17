@@ -1,6 +1,8 @@
 package com.jelly.zzirit.domain.order.service.order;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -18,6 +20,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.redis.lock.DistributedLock;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -29,10 +32,15 @@ public class CommandStockService {
 	private final ItemStockRepository itemStockRepository;
 	private final AsyncStockHistoryUploader asyncStockHistoryUploader;
 
-	@DistributedLock(key = "#itemId", leaseTime = 12L)
 	@Transactional
+	@DistributedLock(key = "#itemId", leaseTime = 12L)
+	@Retryable(
+		retryFor = {ObjectOptimisticLockingFailureException.class},
+		maxAttempts = 100,
+		backoff = @Backoff(100)
+	)
 	public void decrease(String orderNumber, Long itemId, int quantity) {
-		Item item = findItemOrThrow(itemId);
+		Item item = findItemWithOptimisticLock(itemId);
 
 		boolean success;
 		if (item.validateTimeDeal()) {
@@ -53,8 +61,13 @@ public class CommandStockService {
 
 	@DistributedLock(key = "#itemId", leaseTime = 12L)
 	@Transactional
+	@Retryable(
+		retryFor = {ObjectOptimisticLockingFailureException.class},
+		maxAttempts = 100,
+		backoff = @Backoff(100)
+	)
 	public void restore(String orderNumber, Long itemId, int quantity) {
-		Item item = findItemOrThrow(itemId);
+		Item item = findItemWithOptimisticLock(itemId);
 		boolean success;
 
 		if (item.validateTimeDeal()) {
@@ -76,8 +89,8 @@ public class CommandStockService {
 		registerLogAfterCommit(StockChangeEvent.restore(itemId, orderNumber, quantity));
 	}
 
-	private Item findItemOrThrow(Long itemId) {
-		return itemRepository.findById(itemId)
+	private Item findItemWithOptimisticLock(Long itemId) {
+		return itemRepository.findByIdWithOptimisticLock(itemId)
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
 	}
 
