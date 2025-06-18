@@ -1,11 +1,12 @@
 package com.jelly.zzirit.domain.order.service.order.manage;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Optional;
 
-import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,11 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
+import com.jelly.zzirit.domain.order.infra.feign.TossPaymentClient;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmMessage;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
+import com.jelly.zzirit.domain.order.service.payment.TossPaymentValidator;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class CommandConfirmServiceTest {
@@ -35,6 +37,9 @@ class CommandConfirmServiceTest {
 
 	@Mock
 	private OrderRepository orderRepository;
+
+	@Mock
+	private TossPaymentValidator tossPaymentValidator;
 
 	@Test
 	void 결제정보_확인_및_주문확정_성공() {
@@ -54,14 +59,14 @@ class CommandConfirmServiceTest {
 		paymentResponse.setMethod(paymentMethod);
 
 		when(orderRepository.findWithPaymentByOrderNumber(orderNumber)).thenReturn(Optional.of(order));
-		when(tossPaymentClient.fetchPaymentInfo(paymentKey)).thenReturn(paymentResponse);
+		when(tossPaymentClient.fetchPaymentInfo(anyString(), anyString())).thenReturn(paymentResponse);
 
 		// when
 		commandConfirmService.confirmWithTx(orderNumber, message);
 
 		// then
-		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
-		verify(tossPaymentClient).validate(order, paymentResponse, amount);
+		verify(tossPaymentClient).fetchPaymentInfo(anyString(), anyString());
+		verify(tossPaymentValidator).validate(order, paymentResponse, amount);
 		verify(payment).changeStatus(Payment.PaymentStatus.DONE);
 		verify(payment).changeMethod(paymentMethod);
 		verify(commandOrderService).completeOrder(order);
@@ -80,17 +85,17 @@ class CommandConfirmServiceTest {
 		PaymentResponse paymentResponse = new PaymentResponse();
 
 		when(orderRepository.findWithPaymentByOrderNumber(orderNumber)).thenReturn(Optional.of(order));
-		when(tossPaymentClient.fetchPaymentInfo(paymentKey)).thenReturn(paymentResponse);
+		when(tossPaymentClient.fetchPaymentInfo(anyString(), anyString())).thenReturn(paymentResponse);
 		doThrow(new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND))
-				.when(tossPaymentClient).validate(order, paymentResponse, amount);
+				.when(tossPaymentValidator).validate(order, paymentResponse, amount);
 
 		// when & then
 		assertThrows(InvalidOrderException.class, () ->
 				commandConfirmService.confirmWithTx(orderNumber, message)
 		);
 
-		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
-		verify(tossPaymentClient).validate(order, paymentResponse, amount);
+		verify(tossPaymentClient).fetchPaymentInfo(anyString(), anyString());
+		verify(tossPaymentValidator).validate(order, paymentResponse, amount);
 		verifyNoInteractions(commandOrderService);
 	}
 }

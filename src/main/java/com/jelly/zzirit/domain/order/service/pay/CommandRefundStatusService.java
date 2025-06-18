@@ -42,7 +42,6 @@ public class CommandRefundStatusService {
 		orderRepository.save(order);
 		paymentRepository.save(payment);
 
-
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 			@Override
 			public void afterCommit() {

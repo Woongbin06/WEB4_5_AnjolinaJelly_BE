@@ -1,10 +1,12 @@
 package com.jelly.zzirit.domain.order.service.pay;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import org.junit.jupiter.api.Test;
@@ -19,11 +21,12 @@ import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
 import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
+import com.jelly.zzirit.domain.order.infra.feign.TossPaymentClient;
+import com.jelly.zzirit.domain.order.infra.feign.dto.TossPaymentConfirmRequest;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmMessage;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmProducer;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -64,16 +67,18 @@ class CommandPaymentConfirmServiceTest {
 		PaymentResponse paymentResponse = new PaymentResponse();
 		paymentResponse.setMethod(method);
 
-		when(tossPaymentClient.confirmPayment(paymentKey, order.getOrderNumber(), amount))
+
+		TossPaymentConfirmRequest request = TossPaymentConfirmRequest.of(paymentKey, order.getOrderNumber(), amount);
+		when(tossPaymentClient.confirmPayment(anyString() ,anyString(), refEq(request)))
 				.thenReturn(paymentResponse);
 
 		// when
 		PaymentConfirmResponse response = service.confirmPayment(
-				paymentKey, order.getOrderNumber(), amount
+			paymentKey, order.getOrderNumber(), amount
 		);
 
 		// then
-		verify(tossPaymentClient).confirmPayment(paymentKey, order.getOrderNumber(), amount);
+		verify(tossPaymentClient).confirmPayment(anyString(), anyString(), refEq(request));
 		verify(paymentRepository).save(any(Payment.class));
 		verify(orderConfirmProducer).send(any(OrderConfirmMessage.class));
 
@@ -108,8 +113,9 @@ class CommandPaymentConfirmServiceTest {
 		when(orderRepository.findByOrderNumber(order.getOrderNumber()))
 			.thenReturn(Optional.of(order));
 
+		TossPaymentConfirmRequest request = TossPaymentConfirmRequest.of(paymentKey, order.getOrderNumber(), amount);
 		doThrow(new RuntimeException("토스 에러"))
-			.when(tossPaymentClient).confirmPayment(paymentKey, order.getOrderNumber(), amount);
+			.when(tossPaymentClient).confirmPayment(anyString() ,anyString(), refEq(request));
 
 		// when & then
 		RuntimeException ex = assertThrows(RuntimeException.class, () ->

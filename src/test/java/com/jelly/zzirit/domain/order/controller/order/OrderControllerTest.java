@@ -44,7 +44,7 @@ import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.order.CommandStockService;
 import com.jelly.zzirit.domain.order.service.order.cancel.OrderCancelValidator;
 import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
+import com.jelly.zzirit.domain.order.service.payment.TossPaymentValidator;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.support.AcceptanceTest;
@@ -82,7 +82,7 @@ public class OrderControllerTest extends AcceptanceTest {
 	private CommandRefundService commandRefundService;
 
 	@MockitoBean
-	private TossPaymentClient tossPaymentClient;
+	private TossPaymentValidator tossPaymentClient;
 
 	@MockitoBean
 	private CommandStockService commandStockService;

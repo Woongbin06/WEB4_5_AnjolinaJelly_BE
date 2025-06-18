@@ -46,7 +46,7 @@ public class CommandAdminService {
 		itemStockRepository.save(itemStock);
 	}
 
-	@CacheEvict(cacheNames = "items", key = "customKeyGenerator")
+	@CacheEvict(cacheNames = "items", keyGenerator = "customKeyGenerator")
 	public void updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
 		Item item = itemRepository.findById(itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
@@ -59,7 +59,7 @@ public class CommandAdminService {
 		itemStock.changeQuantity(request.stockQuantity());
 	}
 
-	@CacheEvict(cacheNames = "items", key = "customKeyGenerator")
+	@CacheEvict(cacheNames = "items", keyGenerator = "customKeyGenerator")
 	public void deleteItem(@NotNull Long itemId) {
 		// todo: 삭제 검증 로직 논의 필요 - 이미 판매된 상품은 삭제 불가 등
 		// todo: soft delete 사용할지 논의 필요
