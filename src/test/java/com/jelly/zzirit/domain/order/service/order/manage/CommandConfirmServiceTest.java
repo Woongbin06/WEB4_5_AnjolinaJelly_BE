@@ -59,13 +59,13 @@ class CommandConfirmServiceTest {
 		paymentResponse.setMethod(paymentMethod);
 
 		when(orderRepository.findWithPaymentByOrderNumber(orderNumber)).thenReturn(Optional.of(order));
-		when(tossPaymentClient.fetchPaymentInfo(anyString(), anyString())).thenReturn(paymentResponse);
+		when(tossPaymentClient.fetchPaymentInfo(paymentKey)).thenReturn(paymentResponse);
 
 		// when
 		commandConfirmService.confirmWithTx(orderNumber, message);
 
 		// then
-		verify(tossPaymentClient).fetchPaymentInfo(anyString(), anyString());
+		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
 		verify(tossPaymentValidator).validate(order, paymentResponse, amount);
 		verify(payment).changeStatus(Payment.PaymentStatus.DONE);
 		verify(payment).changeMethod(paymentMethod);
@@ -85,7 +85,7 @@ class CommandConfirmServiceTest {
 		PaymentResponse paymentResponse = new PaymentResponse();
 
 		when(orderRepository.findWithPaymentByOrderNumber(orderNumber)).thenReturn(Optional.of(order));
-		when(tossPaymentClient.fetchPaymentInfo(anyString(), anyString())).thenReturn(paymentResponse);
+		when(tossPaymentClient.fetchPaymentInfo(paymentKey)).thenReturn(paymentResponse);
 		doThrow(new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND))
 				.when(tossPaymentValidator).validate(order, paymentResponse, amount);
 
@@ -94,7 +94,7 @@ class CommandConfirmServiceTest {
 				commandConfirmService.confirmWithTx(orderNumber, message)
 		);
 
-		verify(tossPaymentClient).fetchPaymentInfo(anyString(), anyString());
+		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
 		verify(tossPaymentValidator).validate(order, paymentResponse, amount);
 		verifyNoInteractions(commandOrderService);
 	}

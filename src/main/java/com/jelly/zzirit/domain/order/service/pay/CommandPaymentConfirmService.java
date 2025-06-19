@@ -35,9 +35,6 @@ public class CommandPaymentConfirmService {
 	private final OrderConfirmProducer orderConfirmProducer;
 	private final TossPaymentClient tossPaymentClient;
 
-	@Value("${toss.payments.secret-key}")
-	private String secretKey;
-
 	@Transactional
 	public PaymentConfirmResponse confirmPayment(String paymentKey, String orderNumber, String amount) {
 		log.info("[결제확정요청] 시작 - orderNumber={}, paymentKey={}, amount={}", orderNumber, paymentKey, amount);
@@ -50,11 +47,9 @@ public class CommandPaymentConfirmService {
 
 		log.info("[결제확정요청] 주문 조회 성공 - memberId={}", order.getMember().getId());
 
-		String auth = "Basic" + Base64.getEncoder()
-			.encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
 		String idempotencyKey = UUID.randomUUID().toString();
 		TossPaymentConfirmRequest request = TossPaymentConfirmRequest.of(paymentKey, orderNumber, amount);
-		PaymentResponse paymentResponse = tossPaymentClient.confirmPayment(auth, idempotencyKey, request);
+		PaymentResponse paymentResponse = tossPaymentClient.confirmPayment(idempotencyKey, request);
 		log.info("[결제확정요청] confirm 응답: method={}, status={}, totalAmount={}", paymentResponse.getMethod(),
 			paymentResponse.getStatus(), paymentResponse.getTotalAmount());
 

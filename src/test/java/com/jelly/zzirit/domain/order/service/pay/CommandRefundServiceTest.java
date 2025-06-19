@@ -43,13 +43,13 @@ class CommandRefundServiceTest {
 		Order order = OrderFixture.결제된_주문_생성(member);
 
 		TossPaymentRefundRequest request = TossPaymentRefundRequest.of(reason, order.getTotalPrice());
-		doNothing().when(tossPaymentClient).refundPayment(anyString(), anyString(), refEq(request));
+		doNothing().when(tossPaymentClient).refundPayment(paymentKey, request);
 
 		// when
 		commandRefundService.refund(order, paymentKey, reason);
 
 		// then
-		verify(tossPaymentClient).refundPayment(anyString(), anyString(), refEq(request));
+		verify(tossPaymentClient).refundPayment(paymentKey, request);
 		verify(commandRefundStatusService).markAsRefunded(order, paymentKey, true);
 	}
 
@@ -62,7 +62,7 @@ class CommandRefundServiceTest {
 		TossPaymentRefundRequest request = TossPaymentRefundRequest.of(reason, order.getTotalPrice());
 		doThrow(new RuntimeException("API 오류"))
 			.when(tossPaymentClient)
-			.refundPayment(anyString(), anyString(), refEq(request));
+			.refundPayment(paymentKey, request);
 
 		// when & then
 		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->

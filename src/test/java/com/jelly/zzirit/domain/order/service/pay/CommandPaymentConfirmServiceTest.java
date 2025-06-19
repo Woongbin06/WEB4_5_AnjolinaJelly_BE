@@ -69,7 +69,7 @@ class CommandPaymentConfirmServiceTest {
 
 
 		TossPaymentConfirmRequest request = TossPaymentConfirmRequest.of(paymentKey, order.getOrderNumber(), amount);
-		when(tossPaymentClient.confirmPayment(anyString() ,anyString(), refEq(request)))
+		when(tossPaymentClient.confirmPayment(anyString(), refEq(request)))
 				.thenReturn(paymentResponse);
 
 		// when
@@ -78,7 +78,7 @@ class CommandPaymentConfirmServiceTest {
 		);
 
 		// then
-		verify(tossPaymentClient).confirmPayment(anyString(), anyString(), refEq(request));
+		verify(tossPaymentClient).confirmPayment(anyString(), refEq(request));
 		verify(paymentRepository).save(any(Payment.class));
 		verify(orderConfirmProducer).send(any(OrderConfirmMessage.class));
 
@@ -115,7 +115,7 @@ class CommandPaymentConfirmServiceTest {
 
 		TossPaymentConfirmRequest request = TossPaymentConfirmRequest.of(paymentKey, order.getOrderNumber(), amount);
 		doThrow(new RuntimeException("토스 에러"))
-			.when(tossPaymentClient).confirmPayment(anyString() ,anyString(), refEq(request));
+			.when(tossPaymentClient).confirmPayment(anyString(), refEq(request));
 
 		// when & then
 		RuntimeException ex = assertThrows(RuntimeException.class, () ->

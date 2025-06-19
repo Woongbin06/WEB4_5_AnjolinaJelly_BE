@@ -19,20 +19,17 @@ public interface TossPaymentClient {
 
 	@PostMapping(value = "/confirm")
 	PaymentResponse confirmPayment(
-		@RequestHeader("Authorization") String authorization,
 		@RequestHeader("Idempotency-Key") String idempotencyKey,
 		@RequestBody TossPaymentConfirmRequest request
 	);
 
 	@GetMapping(value = "/{paymentKey}")
 	PaymentResponse fetchPaymentInfo(
-		@RequestHeader("Authorization") String authorization,
 		@PathVariable(name = "paymentKey") String paymentKey
 	);
 
 	@PostMapping(value = "/{paymentKey}/cancel")
 	void refundPayment(
-		@RequestHeader("Authorization") String authorization,
 		@PathVariable(name = "paymentKey") String paymentKey,
 		@RequestBody TossPaymentRefundRequest request
 	);

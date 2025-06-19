@@ -29,9 +29,6 @@ public class CommandConfirmService {
 	private final OrderRepository orderRepository;
 	private final TossPaymentValidator tossPaymentValidator;
 
-	@Value("${toss.payments.secret-key}")
-	private String secretKey;
-
 	@Transactional
 	public void confirmWithTx(String orderNumber, OrderConfirmMessage message) {
 		Order order = orderRepository.findWithPaymentByOrderNumber(orderNumber)
@@ -41,9 +38,7 @@ public class CommandConfirmService {
 
 	private void confirm(Order order, OrderConfirmMessage message) {
 		try {
-			String auth = "Basic" + Base64.getEncoder()
-				.encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
-			PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(auth, message.getPaymentKey());
+			PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(message.getPaymentKey());
 			tossPaymentValidator.validate(order, paymentInfo, message.getAmount());
 
 			Payment payment = order.getPayment();

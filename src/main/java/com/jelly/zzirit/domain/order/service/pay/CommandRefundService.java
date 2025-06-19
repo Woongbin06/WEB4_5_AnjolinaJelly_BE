@@ -23,17 +23,12 @@ public class CommandRefundService {
 	private final TossPaymentClient tossPaymentClient;
 	private final CommandRefundStatusService commandRefundStatusService;
 
-	@Value("${toss.payments.secret-key}")
-	private String secretKey;
-
 	public void refund(Order order, String paymentKey, String reason) {
 		boolean isRefundSuccessful = false;
 
 		try {
-			String auth = "Basic" + Base64.getEncoder()
-				.encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
 			TossPaymentRefundRequest request = TossPaymentRefundRequest.of(reason, order.getTotalPrice());
-			tossPaymentClient.refundPayment(auth, paymentKey, request);
+			tossPaymentClient.refundPayment(paymentKey, request);
 			isRefundSuccessful = true;
 		} catch (Exception e) {
 			log.error("환불 처리 중 예외 발생: order={}, reason={}", order.getOrderNumber(), reason, e);
