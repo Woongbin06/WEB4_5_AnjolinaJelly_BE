@@ -35,6 +35,32 @@ spring:
   jwt:
     secret: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 1
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 30
+        eventConsumerBufferSize: 10
+        recordFailurePredicate: com.jelly.zzirit.global.config.CircuitRecordFailurePredicate
+  instances:
+    tossPaymentClient:
+      baseConfig: default
+
 oauth2:
   naver:
     client-id: test-naver-client-id

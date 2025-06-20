@@ -36,17 +36,31 @@ spring:
             enable: true
             required: true
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+
 resilience4j:
   circuitbreaker:
-    instances:
-      tossPayment:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
         registerHealthIndicator: true
-        failureRateThreshold: 50
-        slowCallRateThreshold: 50
-        slowCallDurationThreshold: 2s
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 2
-        slidingWindowSize: 10
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 1
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 30
+        eventConsumerBufferSize: 10
+        recordFailurePredicate: com.jelly.zzirit.global.config.CircuitRecordFailurePredicate
+  instances:
+    tossPaymentClient:
+      baseConfig: default
 
 logging:
   level:

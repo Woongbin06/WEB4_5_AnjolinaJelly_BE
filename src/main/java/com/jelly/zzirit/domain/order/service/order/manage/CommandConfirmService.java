@@ -1,9 +1,5 @@
 package com.jelly.zzirit.domain.order.service.order.manage;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +9,6 @@ import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.infra.feign.TossPaymentClient;
 import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmMessage;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentValidation;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentValidator;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -27,7 +21,6 @@ public class CommandConfirmService {
 	private final TossPaymentClient tossPaymentClient;
 	private final CommandOrderService commandOrderService;
 	private final OrderRepository orderRepository;
-	private final TossPaymentValidator tossPaymentValidator;
 
 	@Transactional
 	public void confirmWithTx(String orderNumber, OrderConfirmMessage message) {
@@ -39,7 +32,7 @@ public class CommandConfirmService {
 	private void confirm(Order order, OrderConfirmMessage message) {
 		try {
 			PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(message.getPaymentKey());
-			tossPaymentValidator.validate(order, paymentInfo, message.getAmount());
+			tossPaymentClient.validate(order, paymentInfo, message.getAmount());
 
 			Payment payment = order.getPayment();
 			payment.changeStatus(Payment.PaymentStatus.DONE);

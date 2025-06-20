@@ -53,6 +53,7 @@ public enum BaseResponseStatus {
 	ALREADY_PROCESSED(false, 3005, "이미 처리된 주문입니다.", HttpStatus.BAD_REQUEST),
 	TOSS_PAYMENT_VERIFY_FAILED(false, 3006, "토스 결제 정보 검증에 실패했습니다.", HttpStatus.BAD_GATEWAY),
 	TOSS_CONFIRM_FAILED(false, 3007, "토스 결제 최종 승인에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+	TOSS_FETCH_FAILED(false, 3007, "토스 결제 정보 조회에 실패했습니다.", HttpStatus.BAD_GATEWAY),
 	NOT_PAID_ORDER(false, 3008, "결제 완료된 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	EXPIRED_CANCEL_TIME(false, 3009, "24시간 이내의 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	UNSUPPORTED_PAYMENT_PROVIDER(false, 3010, "지원하지 않는 결제 수단입니다.", HttpStatus.BAD_REQUEST),

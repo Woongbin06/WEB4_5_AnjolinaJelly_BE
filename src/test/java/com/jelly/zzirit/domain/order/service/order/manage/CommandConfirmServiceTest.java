@@ -1,7 +1,6 @@
 package com.jelly.zzirit.domain.order.service.order.manage;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -19,7 +18,6 @@ import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.infra.feign.TossPaymentClient;
 import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmMessage;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentValidator;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -37,9 +35,6 @@ class CommandConfirmServiceTest {
 
 	@Mock
 	private OrderRepository orderRepository;
-
-	@Mock
-	private TossPaymentValidator tossPaymentValidator;
 
 	@Test
 	void 결제정보_확인_및_주문확정_성공() {
@@ -66,7 +61,7 @@ class CommandConfirmServiceTest {
 
 		// then
 		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
-		verify(tossPaymentValidator).validate(order, paymentResponse, amount);
+		verify(tossPaymentClient).validate(order, paymentResponse, amount);
 		verify(payment).changeStatus(Payment.PaymentStatus.DONE);
 		verify(payment).changeMethod(paymentMethod);
 		verify(commandOrderService).completeOrder(order);
@@ -87,7 +82,7 @@ class CommandConfirmServiceTest {
 		when(orderRepository.findWithPaymentByOrderNumber(orderNumber)).thenReturn(Optional.of(order));
 		when(tossPaymentClient.fetchPaymentInfo(paymentKey)).thenReturn(paymentResponse);
 		doThrow(new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND))
-				.when(tossPaymentValidator).validate(order, paymentResponse, amount);
+				.when(tossPaymentClient).validate(order, paymentResponse, amount);
 
 		// when & then
 		assertThrows(InvalidOrderException.class, () ->
@@ -95,7 +90,7 @@ class CommandConfirmServiceTest {
 		);
 
 		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
-		verify(tossPaymentValidator).validate(order, paymentResponse, amount);
+		verify(tossPaymentClient).validate(order, paymentResponse, amount);
 		verifyNoInteractions(commandOrderService);
 	}
 }
