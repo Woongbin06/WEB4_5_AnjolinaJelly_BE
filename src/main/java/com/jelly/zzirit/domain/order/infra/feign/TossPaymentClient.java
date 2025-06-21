@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.order.infra.feign;
 
+import static com.jelly.zzirit.global.config.Resilience4jRetryConfig.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -19,6 +21,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import feign.RetryableException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 @FeignClient(
 	name = "TossPaymentClient",
@@ -28,19 +31,22 @@ public interface TossPaymentClient {
 
 	Logger log = LoggerFactory.getLogger(TossPaymentClient.class);
 
-	@CircuitBreaker(name = "tossPaymentClient", fallbackMethod = "fallback")
+	@Retry(name = TOSS_PAYMENT_RETRY)
+	@CircuitBreaker(name = "tossPaymentClient", fallbackMethod = "fallbackConfirm")
 	@PostMapping(value = "/confirm")
 	PaymentResponse confirmPayment(
 		@RequestHeader("Idempotency-Key") String idempotencyKey,
 		@RequestBody TossPaymentConfirmRequest request
 	);
 
+	@Retry(name = TOSS_PAYMENT_RETRY)
 	@CircuitBreaker(name = "tossPaymentClient", fallbackMethod = "fallbackFetch")
 	@GetMapping(value = "/{paymentKey}")
 	PaymentResponse fetchPaymentInfo(
 		@PathVariable(name = "paymentKey") String paymentKey
 	);
 
+	@Retry(name = TOSS_PAYMENT_RETRY)
 	@CircuitBreaker(name = "tossPaymentClient", fallbackMethod = "fallbackRefund")
 	@PostMapping(value = "/{paymentKey}/cancel")
 	void refundPayment(
@@ -52,20 +58,37 @@ public interface TossPaymentClient {
 		TossPaymentValidation.validateAll(order, response, amount);
 	}
 
-	default PaymentResponse fallback(RetryableException e, String idempotencyKey, TossPaymentConfirmRequest request) {
-		log.error("Toss 결제 재시도 오류 : idempotencyKey = {}, paymentKey = {}, message = {}",
+	default PaymentResponse fallbackConfirm(String idempotencyKey, TossPaymentConfirmRequest request, Throwable t) {
+		log.error("Toss 결제 승인 요청 오류 : idempotencyKey = {}, paymentKey = {}, message = {}",
+			idempotencyKey, request.paymentKey(), t.getMessage());
+		throw new InvalidOrderException(BaseResponseStatus.TOSS_SERVER_FAILED);
+	}
+
+	default PaymentResponse fallbackConfirm(String idempotencyKey, TossPaymentConfirmRequest request, RetryableException e) {
+		log.error("Toss 결제 재시도 실패 : idempotencyKey = {}, paymentKey = {}, message = {}",
 			idempotencyKey, request.paymentKey(), e.getMessage());
-		throw new InvalidOrderException(BaseResponseStatus.TOSS_CONFIRM_FAILED);
+		throw new InvalidOrderException(BaseResponseStatus.TOSS_RETRY_FAILED);
 	}
 
-	default PaymentResponse fallbackFetch(Throwable t, String paymentKey) {
+	default PaymentResponse fallbackFetch(String paymentKey, Throwable t) {
 		log.error("Toss 결제 조회 요청 오류 : paymentKey = {}, error = {}", paymentKey, t.getMessage());
-		throw new InvalidOrderException(BaseResponseStatus.TOSS_FETCH_FAILED);
+		throw new InvalidOrderException(BaseResponseStatus.TOSS_SERVER_FAILED);
 	}
 
-	default void fallbackRefund(Throwable t, String paymentKey, TossPaymentRefundRequest request) {
+	default PaymentResponse fallbackFetch(String paymentKey, RetryableException e) {
+		log.error("Toss 결제 조회 재시도 실패 : paymentKey = {}, error = {}", paymentKey, e.getMessage());
+		throw new InvalidOrderException(BaseResponseStatus.TOSS_RETRY_FAILED);
+	}
+
+	default void fallbackRefund(String paymentKey, TossPaymentRefundRequest request, Throwable t) {
 		log.error("Toss 결제 환불 요청 오류 : paymentKey = {}, reason = {}, amount = {}, error = {}",
 			paymentKey, request.reason(), request.amount(), t.getMessage());
-		throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
+		throw new InvalidOrderException(BaseResponseStatus.TOSS_SERVER_FAILED);
+	}
+
+	default void fallbackRefund(String paymentKey, TossPaymentRefundRequest request, RetryableException e) {
+		log.error("Toss 결제 환불 재시도 실패 : paymentKey = {}, reason = {}, amount = {}, error = {}",
+			paymentKey, request.reason(), request.amount(), e.getMessage());
+		throw new InvalidOrderException(BaseResponseStatus.TOSS_RETRY_FAILED);
 	}
 }

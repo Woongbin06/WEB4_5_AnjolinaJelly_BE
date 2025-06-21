@@ -58,6 +58,8 @@ public enum BaseResponseStatus {
 	EXPIRED_CANCEL_TIME(false, 3009, "24시간 이내의 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	UNSUPPORTED_PAYMENT_PROVIDER(false, 3010, "지원하지 않는 결제 수단입니다.", HttpStatus.BAD_REQUEST),
 	UNREGISTERED_PAYMENT_GATEWAY(false, 3011, "PG사 구현체가 등록되어 있지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	TOSS_RETRY_FAILED(false, 30012, "토스 서비스 재시도에 실패했습니다. 다시 시도해 주세요.", HttpStatus.BAD_GATEWAY),
+	TOSS_SERVER_FAILED(false, 30013, "현재 토스 서비스를 사용할 수 없습니다. 잠시 후에 시도해 주세요.", HttpStatus.BAD_GATEWAY),
 
 	// 환불 및 상태 변경 관련 추가
 	TOSS_REFUND_FAILED(false, 3020, "토스 결제 취소 API 실패입니다.", HttpStatus.BAD_GATEWAY),

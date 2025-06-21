@@ -1,14 +1,13 @@
 package com.jelly.zzirit.domain.order.service.pay;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.refEq;
 import static org.mockito.Mockito.*;
 
-import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.UUID;
 
-import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +18,7 @@ import com.jelly.zzirit.domain.member.domain.MemberFixture;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
 import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
+import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.infra.feign.TossPaymentClient;

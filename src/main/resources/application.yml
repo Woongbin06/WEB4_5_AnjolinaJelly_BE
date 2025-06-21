@@ -46,6 +46,7 @@ spring:
 
 resilience4j:
   circuitbreaker:
+    circuit-breaker-aspect-order: 1
     configs:
       default:
         sliding-window-type: COUNT_BASED
@@ -61,6 +62,8 @@ resilience4j:
   instances:
     tossPaymentClient:
       baseConfig: default
+  retry:
+      retry-aspect-order: 2
 
 logging:
   level:
