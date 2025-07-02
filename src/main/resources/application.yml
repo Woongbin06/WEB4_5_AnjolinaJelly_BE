@@ -63,7 +63,7 @@ resilience4j:
     tossPaymentClient:
       baseConfig: default
   retry:
-      retry-aspect-order: 2
+    retry-aspect-order: 2
 
 logging:
   level:

@@ -33,10 +33,10 @@ public class CommandStockService {
 	private final AsyncStockHistoryUploader asyncStockHistoryUploader;
 
 	@Transactional
-	@DistributedLock(key = "#itemId", leaseTime = 12L)
+	@DistributedLock(key = "#itemId", leaseTime = 6L)
 	@Retryable(
 		retryFor = {ObjectOptimisticLockingFailureException.class},
-		maxAttempts = 100,
+		maxAttempts = 5,
 		backoff = @Backoff(100)
 	)
 	public void decrease(String orderNumber, Long itemId, int quantity) {

@@ -20,8 +20,8 @@ public class Resilience4jRetryConfig {
 	@Bean(name = TOSS_PAYMENT_RETRY)
 	public RetryRegistry retryConfig() {
 		return RetryRegistry.of(RetryConfig.custom()
-			.maxAttempts(3)
-			.intervalFunction(IntervalFunction.ofExponentialRandomBackoff(Duration.ofMillis(5000), 2))
+			.maxAttempts(4)
+			.intervalFunction(IntervalFunction.ofExponentialRandomBackoff(Duration.ofMillis(3000), 2))
 			.retryExceptions(FeignException.FeignServerException.class)
 			.retryOnException(
 				throwable -> !(throwable instanceof FeignException.FeignClientException)
